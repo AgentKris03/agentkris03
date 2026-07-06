@@ -1,4 +1,3 @@
-import dataclasses
 from dataclasses import dataclass, field
 from random import choice
 from re import sub
@@ -12,8 +11,9 @@ from scripts.cat import save_load
 from scripts.cat.cats import Cat
 from scripts.cat.names import names
 from scripts.clan import Clan
+from scripts.clan_package.clan_names import get_possible_clan_names
 from scripts.events_module.patrol.patrol import Patrol
-from scripts.game_structure import game
+from scripts.game_structure import game, constants
 from scripts.game_structure.game import switch_get_value, Switch, game_setting_get
 from scripts.game_structure.game.switches import switch_set_value
 from scripts.game_structure.screen_settings import MANAGER
@@ -55,6 +55,7 @@ class ClanInfo:
     symbol: str = ""
     starting_season: str = "Newleaf"
     game_mode: str = "classic"
+    cruel_cards: list[str] = field(default_factory=list)
 
     def clear(self):
         """
@@ -70,6 +71,13 @@ class ClanInfo:
         self.symbol = ""
         self.starting_season = "Newleaf"
         self.game_mode = "classic"
+        self.cruel_cards = []
+
+    def clear_cats(self):
+        self.leader = None
+        self.deputy = None
+        self.medicine_cat = None
+        self.starting_members = []
 
     def update(self, saved_info: dict):
         self.display_name = saved_info["display_name"]
@@ -82,6 +90,7 @@ class ClanInfo:
         self.symbol = saved_info["symbol"]
         self.starting_season = saved_info["starting_season"]
         self.game_mode = saved_info["game_mode"]
+        self.cruel_cards = saved_info["cruel_cards"]
 
     def get_dict(self) -> dict:
         """
@@ -98,6 +107,7 @@ class ClanInfo:
             "symbol": self.symbol,
             "starting_season": self.starting_season,
             "game_mode": self.game_mode,
+            "cruel_cards": self.cruel_cards,
         }
 
     def no_cats_chosen(self) -> bool:
@@ -129,6 +139,8 @@ class ClanInfo:
 
 
 class MakeClanScreenBase(Screens):
+    rolls_left = constants.CONFIG["clan_creation"]["rerolls"]
+
     def __init__(self, name="make_clan_screen"):
         super().__init__(name)
 
@@ -146,20 +158,23 @@ class MakeClanScreenBase(Screens):
             self.clan_info.update(switch_get_value(Switch.clan_creation_info))
 
         # Buttons that appear on every screen.
-        self.elements["menu_warning"] = pygame_gui.elements.UITextBox(
-            "screens.make_clan.menu_warning",
-            ui_scale(pygame.Rect((25, 25), (600, -1))),
-            object_id=get_text_box_theme("#text_box_22_horizleft"),
-            manager=MANAGER,
-        )
         self.elements["main_menu"] = UISurfaceImageButton(
-            ui_scale(pygame.Rect((25, 50), (153, 30))),
+            ui_scale(pygame.Rect((25, 25), (153, 30))),
             "buttons.main_menu",
             get_button_dict(ButtonStyles.SQUOVAL, (153, 30)),
             manager=MANAGER,
             object_id="@buttonstyles_squoval",
             starting_height=1,
         )
+
+        self.elements["menu_warning"] = pygame_gui.elements.UITextBox(
+            "screens.make_clan.menu_warning",
+            ui_scale(pygame.Rect((25, 0), (200, -1))),
+            object_id=get_text_box_theme("#text_box_22_horizleft_spacing_95"),
+            anchors={"top_target": self.elements["main_menu"]},
+            manager=MANAGER,
+        )
+
         self.elements["previous_step"] = UISurfaceImageButton(
             ui_scale(pygame.Rect((253, 620), (147, 30))),
             "buttons.previous_step",
@@ -182,6 +197,11 @@ class MakeClanScreenBase(Screens):
     def handle_event(self, event):
         if event.type == pygame_gui.UI_BUTTON_START_PRESS:
             if event.ui_element == self.elements["main_menu"]:
+                self.set_mute_button_position("bottomright")
+                MakeClanScreenBase.rolls_left = constants.CONFIG["clan_creation"][
+                    "rerolls"
+                ]
+                switch_set_value(Switch.possible_cats, [])
                 self.clan_info.clear()
                 self.change_screen(GameScreen.START)
 
@@ -235,13 +255,43 @@ class MakeClanScreenBase(Screens):
         return chosen_biome
 
     def random_clan_name(self):
-        clan_names = (
-            names.names_dict["normal_prefixes"] + names.names_dict["clan_prefixes"]
-        )
+        clan_names = get_possible_clan_names()
         if self.clan_info.display_name:
             clan_names.remove(self.clan_info.display_name)
 
         return choice(clan_names)
+
+    def random_card(self) -> str:
+        """
+        Returns a random cruel card ID
+        """
+        card = None
+
+        # check conflicts
+        i = 0
+        while (not card or self.card_has_conflicts(card)) and i < 20:
+            card = choice(
+                [
+                    c
+                    for c in list(constants.CRUEL_CARDS_ALL.keys())
+                    if c not in self.clan_info.cruel_cards
+                ]
+            )
+            i += 1
+
+        # `i` is just some extra protection so that we don't infinite while loop
+        # though we really SHOULDN'T end up with cards conflicting that much
+
+        return card
+
+    def card_has_conflicts(self, card_name):
+        for conflict_list in constants.CRUEL_CARDS_CONFLICTS.values():
+            if card_name in conflict_list and set(
+                self.clan_info.cruel_cards
+            ).intersection(set(conflict_list)):
+                return True
+
+        return False
 
     def get_camp_art_path(self, campnum) -> Optional[str]:
         if not campnum:

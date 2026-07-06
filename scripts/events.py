@@ -665,7 +665,7 @@ def handle_focus():
         ]
 
         warrior_amount = len(healthy_warriors) * get_config(
-            game.clan, f"focus.hunting.{CatRank.WARRIOR}"
+            f"focus.hunting.{CatRank.WARRIOR}"
         )
 
         # handle apprentices
@@ -676,7 +676,7 @@ def handle_focus():
         ]
 
         app_amount = len(healthy_apprentices) * get_config(
-            game.clan, f"focus.hunting.{CatRank.APPRENTICE}"
+            f"focus.hunting.{CatRank.APPRENTICE}"
         )
 
         # finish
@@ -1085,7 +1085,6 @@ def one_moon_cat(cat):
 
     # relationships have to be handled separately, because of the ceremony name change
     if cat.status.alive_in_player_clan:
-        cat.relationship_interaction()
         Relation_Events.handle_relationships(cat)
 
     # now we make sure ill and injured cats don't get interactions they shouldn't
@@ -1155,7 +1154,7 @@ def check_war():
     if game.clan.war["at_war"]:
         # Grab the enemy clan object
         for other_clan in game.clan.all_other_clans:
-            if other_clan.name == game.clan.war["enemy"]:
+            if other_clan.prefix == game.clan.war["enemy"]:
                 enemy_clan = other_clan
                 break
 
@@ -1203,7 +1202,7 @@ def check_war():
             ):
                 enemy_clan = other_clan
                 game.clan.war["at_war"] = True
-                game.clan.war["enemy"] = other_clan.name
+                game.clan.war["enemy"] = other_clan.prefix
                 war_events = WAR_TXT["trigger_events"]
                 switch_set_value(Switch.war_rel_change_type, "rel_down")
 
@@ -1229,7 +1228,7 @@ def check_war():
     event = ongoing_event_text_adjust(
         Cat,
         event,
-        other_clan_name=i18n.t("general.clan", name=enemy_clan.name),
+        other_clan_name=enemy_clan.name,
         clan=game.clan,
     )
     game.cur_events_list.append(Single_Event(event, "other_clans"))
@@ -1242,56 +1241,6 @@ def perform_ceremonies(cat):
 
     global ceremony_accessory
 
-    # TODO: hardcoded events, not good, consider how to convert to ShortEvent
-    #  we *do* have a ceremony dict and format, not sure why it isn't being used here
-    # PROMOTE DEPUTY TO LEADER, IF NEEDED -----------------------
-    if game.clan.leader:
-        leader_dead = game.clan.leader.dead
-        leader_outside = game.clan.leader.status.is_outsider
-    else:
-        leader_dead = True
-        # If leader is None, treat them as dead (since they are dead - and faded away.)
-        leader_outside = True
-
-    # If a Clan deputy exists, and the leader is dead,
-    #  outside, or doesn't exist, make the deputy leader.
-    if game.clan.deputy:
-        if (
-            game.clan.deputy is not None
-            and game.clan.deputy.status.alive_in_player_clan
-            and (leader_dead or leader_outside)
-        ):
-            game.clan.new_leader(game.clan.deputy)
-            game.clan.leader_lives = 9
-            text = ""
-            if game.clan.deputy.personality.trait == "bloodthirsty":
-                text = i18n.t(
-                    "hardcoded.ceremony_leader_bloodthirsty",
-                    oldname=game.clan.deputy.name,
-                    newname=cat.name,
-                )
-            else:
-                c = random.randint(1, 3)
-                text = i18n.t(
-                    f"hardcoded.ceremony_leader_{c}",
-                    oldname=game.clan.deputy.name,
-                    newname=cat.name,
-                )
-
-            # game.ceremony_events_list.append(text)
-            text += " " + i18n.t("hardcoded.ceremony_closer")
-
-            text = event_text_adjust(Cat, text, main_cat=cat)
-
-            game.cur_events_list.append(
-                Single_Event(text, "ceremony", game.clan.deputy.ID)
-            )
-            ceremony_accessory = True
-            gain_accessories(cat)
-            game.clan.deputy = None
-
-    # OTHER CEREMONIES ---------------------------------------
-
     # Protection check, to ensure "None" cats won't cause a crash.
     if cat:
         cat_dead = cat.dead
@@ -1303,6 +1252,29 @@ def perform_ceremonies(cat):
             game.clan.deputy = cat
         if cat.status.rank == CatRank.MEDICINE_CAT and game.clan.medicine_cat is None:
             game.clan.medicine_cat = cat
+
+    # PROMOTE DEPUTY TO LEADER, IF NEEDED -----------------------
+    if game.clan.leader:
+        leader_dead = game.clan.leader.dead
+        leader_outside = game.clan.leader.status.is_outsider
+    else:
+        leader_dead = True
+        # If leader is None, treat them as dead (since they are dead - and faded away.)
+        leader_outside = True
+    # If a Clan deputy exists, and the leader is dead,
+    #  outside, or doesn't exist, make the deputy leader.
+    if (
+        game.clan.deputy is not None
+        and game.clan.deputy.status.alive_in_player_clan
+        and (leader_dead or leader_outside)
+        and cat.status.rank == CatRank.DEPUTY
+    ):
+        game.clan.leader_lives = 9
+        cat.rank_change(CatRank.LEADER)
+        ceremony(cat, CatRank.LEADER)
+        game.clan.deputy = None
+
+        # OTHER CEREMONIES ---------------------------------------
 
         # retiring to elder den
         if (
@@ -1376,7 +1348,7 @@ def perform_ceremonies(cat):
                 _ready = cat.moons >= 12
             else:
                 _ready = (
-                    cat.experience_level not in ["untrained", "trainee"]
+                    cat.experience_level not in ["untrained", "learning"]
                     and cat.moons
                     >= constants.CONFIG["graduation"]["min_graduating_age"]
                 ) or cat.moons >= constants.CONFIG["graduation"]["max_apprentice_age"][
@@ -1392,7 +1364,7 @@ def perform_ceremonies(cat):
                         == constants.CONFIG["graduation"]["min_graduating_age"]
                     ):
                         preparedness = "early"
-                    elif cat.experience_level in ["untrained", "trainee"]:
+                    elif cat.experience_level in ["untrained", "learning"]:
                         preparedness = "unprepared"
                     else:
                         preparedness = "prepared"
@@ -1763,12 +1735,27 @@ def ceremony(cat, promoted_to, preparedness="prepared"):
             tags.append("abandoned")
         elif cat.backstory == "clanborn":
             tags.append("clanborn")
+        elif cat.backstory in BACKSTORIES["backstory_categories"]["loner_backstories"]:
+            tags.append("loner")
+        elif (
+            cat.backstory in BACKSTORIES["backstory_categories"]["kittypet_backstories"]
+        ):
+            tags.append("kittypet")
+        elif cat.backstory in BACKSTORIES["backstory_categories"]["rogue_backstories"]:
+            tags.append("rogue")
+
         temp = possible_ceremonies.intersection(ceremony_id_by_tag["general_backstory"])
 
         for t in tags:
             temp.update(possible_ceremonies.intersection(ceremony_id_by_tag[t]))
 
         possible_ceremonies = temp
+        # Check if cat does NOT have a suffix (for the sake of loner/kittypet/rogue) ----------------
+        # this also means we could probably have more easter eggs hehe
+        tags = []
+        if not cat.name.suffix:
+            tags.append("no_suffix")
+
         # Gather for traits --------------------------------------------------------------
 
         temp = possible_ceremonies.intersection(ceremony_id_by_tag["all_traits"])
@@ -1971,7 +1958,7 @@ def handle_apprentice_EX(cat):
         if cat.not_working() and int(random.random() * 3):
             return
 
-        if cat.experience > cat.experience_levels_range["trainee"][1]:
+        if cat.experience > cat.experience_levels_range["learning"][1]:
             return
 
         if cat.status.rank == CatRank.MEDICINE_APPRENTICE:
@@ -2107,10 +2094,8 @@ def handle_injuries_or_general_death(cat):
     )
 
     # chance to kill leader: 1/50 by default
-    leader_death_chance = get_config(game.clan, "death_related.leader_death_chance") - (
-        get_config(game.clan, "death_related.war_death_modifier_leader")
-        if use_war_modifier
-        else 0
+    leader_death_chance = get_config("death_related.leader_death_chance") - (
+        get_config("death_related.war_death_modifier_leader") if use_war_modifier else 0
     )
 
     if (
@@ -2163,10 +2148,8 @@ def handle_injuries_or_general_death(cat):
         if game.clan.game_mode == "classic"
         else "death_related.death_chance"
     )
-    death_chance = get_config(game.clan, path) - (
-        get_config(game.clan, "death_related.war_death_modifier")
-        if use_war_modifier
-        else 0
+    death_chance = get_config(path) - (
+        get_config("death_related.war_death_modifier") if use_war_modifier else 0
     )
     if not int(random.random() * death_chance) and not cat.not_working():  # 1/400
         create_short_event(
