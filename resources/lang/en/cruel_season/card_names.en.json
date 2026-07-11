@@ -11,7 +11,7 @@
     "all_elders": "Old Bones",
     "stolen_vitality": "Stolen Vitality",
     "survival_of_fittest": "Survival Of The Fittest",
-    "kit_season": "Kit Season,",
+    "kit_season": "Kit Season",
     "mouths_to_feed": "Mouths To Feed",
     "plague_ridden": "Plague-ridden",
     "one_cat": "Lone Steps",
@@ -19,6 +19,7 @@
     "always_newleaf": "Neverending Pollen",
     "always_greenleaf": "Neverending Heat",
     "always_leaf-fall": "Neverending Harvest",
-    "always_leaf-bare": "Neverending Frost"
+    "always_leaf-bare": "Neverending Frost",
+    "malicious_aura": "Malicious Aura"
   }
 }
