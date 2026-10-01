@@ -17612,7 +17612,7 @@
         ]
     },
     {
-        "event_id": "gen_misc_any_warangstgathering",
+        "event_id": "gen_misc_any_warangstgathering1",
         "location": ["any"],
         "season": ["any"],
         "sub_type": ["war"],
@@ -17620,13 +17620,12 @@
             "category": "gathering"
         },
         "frequency": 2,
-        "event_text": "m_c can't take the stares and the whispers about the war from cats who aren't living it, and {PRONOUN/m_c/subject} {VERB/m_c/storm/storms} away from POI.",
+        "event_text": "m_c can't stand the stares and the whispers about the war from cats who aren't living it, and {PRONOUN/m_c/subject} {VERB/m_c/storm/storms} away from POI.",
         "m_c": {
             "age": [
                 "-newborn",
                 "-kitten"
             ]
-        },
-
+        }
     }
 ]
