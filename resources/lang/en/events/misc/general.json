@@ -17627,5 +17627,22 @@
                 "-kitten"
             ]
         }
+    },
+    {
+        "event_id": "gen_misc_any_warangstgathering2",
+        "location": ["any"],
+        "season": ["any"],
+        "sub_type": ["war"],
+        "poi": {
+            "category": "gathering"
+        },
+        "frequency": 4,
+        "event_text": "m_c can no longer listen to the gossip surrounding the war, so {PRONOUN/m_c/subject} {VERB/m_c/sneak/sneaks} away from POI when no one is paying attention.",
+        "m_c": {
+            "age": [
+                "-newborn",
+                "-kitten"
+            ]
+        }
     }
 ]
