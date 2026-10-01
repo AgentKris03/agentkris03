@@ -17619,7 +17619,7 @@
         "poi": {
             "category": "gathering"
         },
-        "frequency": 2,
+        "frequency": 4,
         "event_text": "m_c can't stand the stares and the whispers about the war from cats who aren't living it, and {PRONOUN/m_c/subject} {VERB/m_c/storm/storms} away from POI.",
         "m_c": {
             "age": [
