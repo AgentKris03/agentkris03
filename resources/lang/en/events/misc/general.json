@@ -17620,7 +17620,7 @@
             "category": "gathering"
         },
         "frequency": 4,
-        "event_text": "m_c can't stand the stares and the whispers about the war from cats who aren't living it, and {PRONOUN/m_c/subject} {VERB/m_c/storm/storms} away from POI.",
+        "event_text": "m_c can't stand the stares and the whispers about the war from cats who aren't living it, and whips around to snap at them to stop talking about things they know nothing about.",
         "m_c": {
             "age": [
                 "-newborn",
