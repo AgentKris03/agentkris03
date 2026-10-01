@@ -17644,5 +17644,22 @@
                 "-kitten"
             ]
         }
+    },
+    {
+        "event_id": "gen_misc_any_warangstgathering3",
+        "location": ["any"],
+        "season": ["any"],
+        "sub_type": ["war"],
+        "poi": {
+            "category": "gathering"
+        },
+        "frequency": 4,
+        "event_text": "m_c can't handle all the cats talking about the war, so {PRONOUN/m_c/subject} {VERB/m_c/turn/turns} and {VERB/m_c/run/runs} from POI.",
+        "m_c": {
+            "age": [
+                "-newborn",
+                "-kitten"
+            ]
+        }
     }
 ]
