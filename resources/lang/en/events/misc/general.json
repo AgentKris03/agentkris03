@@ -17743,5 +17743,27 @@
                 "leader"
             ]
         }
+    },
+    {
+        "event_id": "gen_misc_any_warangstgatheringmed",
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
+        "poi": {
+            "category": "gathering"
+        },
+        "frequency": 4,
+        "event_text": "m_c gives up on ignoring the pitying looks of the other medicine cats, and {PRONOUN/m_c/subject} {VERB/m_c/leave/leaves} POI before the Gathering is over.",
+        "m_c": {
+            "status": [
+                "medicine cat"
+            ]
+        }
     }
 ]
