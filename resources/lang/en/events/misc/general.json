@@ -17613,9 +17613,15 @@
     },
     {
         "event_id": "gen_misc_any_warangstgathering1",
-        "location": ["any"],
-        "season": ["any"],
-        "sub_type": ["war"],
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
         "poi": {
             "category": "gathering"
         },
@@ -17625,14 +17631,25 @@
             "age": [
                 "-newborn",
                 "-kitten"
+            ],
+            "status": [
+                "-leader",
+                "-deputy",
+                "-medicine cat"
             ]
         }
     },
     {
         "event_id": "gen_misc_any_warangstgathering2",
-        "location": ["any"],
-        "season": ["any"],
-        "sub_type": ["war"],
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
         "poi": {
             "category": "gathering"
         },
@@ -17642,14 +17659,25 @@
             "age": [
                 "-newborn",
                 "-kitten"
+           ],
+            "status": [
+                "-leader",
+                "-deputy",
+                "-medicine cat"
             ]
         }
     },
     {
         "event_id": "gen_misc_any_warangstgathering3",
-        "location": ["any"],
-        "season": ["any"],
-        "sub_type": ["war"],
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
         "poi": {
             "category": "gathering"
         },
@@ -17659,6 +17687,33 @@
             "age": [
                 "-newborn",
                 "-kitten"
+           ],
+            "status": [
+                "-leader",
+                "-deputy",
+                "-medicine cat"
+            ]
+        }
+    },
+    {
+        "event_id": "gen_misc_any_warangstgatheringleader",
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
+        "poi": {
+            "category": "gathering"
+        },
+        "frequency": 4,
+        "event_text": "m_c begins to bristle at how easily others discuss c_n's struggles, and does {PRONOUN/m_c/poss} best to ignore the clouds covering the moon as they call for c_n to leave POI.",
+        "m_c": {
+            "status": [
+                "leader"
             ]
         }
     }
