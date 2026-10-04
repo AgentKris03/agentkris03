@@ -17716,5 +17716,32 @@
                 "leader"
             ]
         }
+    },
+    {
+        "event_id": "gen_misc_any_warangstgatheringdeputy",
+        "location": [
+            "any"
+        ],
+        "season": [
+            "any"
+        ],
+        "sub_type": [
+            "war"
+        ],
+        "poi": {
+            "category": "gathering"
+        },
+        "frequency": 4,
+        "event_text": "m_c feels r_c's eyes upon {PRONOUN/m_c/object} as {PRONOUN/m_c/subject} {VERB/m_c/leave/leaves} POI, but {PRONOUN/m_c/subject} {VERB/m_c/were/was} no longer able to listen to the whispers of the war permeating the Gathering.",
+        "m_c": {
+            "status": [
+                "deputy"
+            ]
+        },
+        "r_c": {
+            "status": [
+                "leader"
+            ]
+        }
     }
 ]
